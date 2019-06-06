@@ -92,10 +92,44 @@ class FavoriteSearchTableViewController: UITableViewController, UISearchResultsU
         }
     
         FavoriteTableViewController.favCities.append(wc.citiesSuggestions(for: resultSearchController.searchBar.text!)[(favCityTable.indexPathForSelectedRow?.row)!])
+       
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //let selectedCity = wc.citiesSuggestions(for: resultSearchController.searchBar.text!)[indexPath.row]
+        let fileName = "favCities"
+        let selectedCity = wc.citiesSuggestions(for: resultSearchController.searchBar.text!)[(favCityTable.indexPathForSelectedRow?.row)!]
+        
+        let dir = try? FileManager.default.url(for: .documentDirectory,
+                                               in: .userDomainMask, appropriateFor: nil, create: true)
+        var inString = String()
+        
+        if let fileURL = dir?.appendingPathComponent(fileName).appendingPathExtension("txt") {
+            
+            // Then reading it back from the file
+            do {
+                inString = try String(contentsOf: fileURL)
+            } catch {
+                print("Failed reading from URL: \(fileURL), Error: " + error.localizedDescription)
+            }
+        }
+        
+        let text = inString + selectedCity.name + ";" + selectedCity.identifier.description + "\n"
+        
+
+        //print(dir)
+        // If the directory was found, we write a file to it and read it back
+        if let fileURL = dir?.appendingPathComponent(fileName).appendingPathExtension("txt") {
+            
+            // Write to the file named Test
+            do {
+                try text.write(to: fileURL, atomically: true, encoding: .utf8)
+            } catch {
+                print("Failed writing to URL: \(fileURL), Error: " + error.localizedDescription)
+            }
+        }
+        //print(text)
+        
         performSegue(withIdentifier: "showfavorite", sender: self)
         
     }
